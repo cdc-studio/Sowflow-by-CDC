@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+.env
+.env.local
+apps/api/local.settings.json
+
+*.log
+.DS_Store

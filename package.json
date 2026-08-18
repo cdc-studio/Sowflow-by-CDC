@@ -1,0 +1,16 @@
+{
+  "name": "sowflow",
+  "private": true,
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.15.1",
+  "scripts": {
+    "dev:web": "pnpm --filter @sowflow/web dev",
+    "dev:api": "pnpm --filter @sowflow/api start",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck"
+  }
+}

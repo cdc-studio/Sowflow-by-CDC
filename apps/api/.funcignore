@@ -1,0 +1,9 @@
+*.ts
+!dist/**/*.js
+src/
+node_modules/typescript
+node_modules/@types
+.vscode
+local.settings.json
+test
+tsconfig.json

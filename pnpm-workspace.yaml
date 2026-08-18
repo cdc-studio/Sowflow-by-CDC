@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+allowBuilds:
+  '@clerk/shared': true
+  azure-functions-core-tools: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - openai@7.5.0
+overrides:
+  zod: 3.23.8

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sowflow-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@sowflow/web", "dev"],
+      "port": 3000
+    }
+  ]
+}

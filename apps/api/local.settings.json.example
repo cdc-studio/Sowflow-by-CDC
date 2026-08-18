@@ -1,0 +1,25 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AZURE_OPENAI_ENDPOINT": "",
+    "AZURE_OPENAI_API_KEY": "",
+    "AZURE_OPENAI_DEPLOYMENT_NAME": "gpt-4o",
+    "AZURE_OPENAI_API_VERSION": "2024-08-01-preview",
+    "AZURE_SPEECH_KEY": "",
+    "AZURE_SPEECH_REGION": "",
+    "AZURE_STORAGE_CONNECTION_STRING": "",
+    "AZURE_STORAGE_CONTAINER_UPLOADS": "uploads",
+    "AZURE_STORAGE_QUEUE_AUDIO_PROCESSING": "audio-processing",
+    "COSMOS_DB_CONNECTION_STRING": "",
+    "COSMOS_DB_DATABASE_NAME": "sowflow",
+    "AZURE_SEARCH_ENDPOINT": "",
+    "AZURE_SEARCH_API_KEY": "",
+    "AZURE_SEARCH_INDEX_NAME": "sow-memory",
+    "STRIPE_SECRET_KEY": "",
+    "STRIPE_WEBHOOK_SECRET": "",
+    "SENTRY_DSN": "",
+    "NODE_ENV": "development"
+  }
+}
