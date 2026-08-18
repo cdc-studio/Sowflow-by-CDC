@@ -13,8 +13,10 @@
   "dependencies": {
     "@azure/cosmos": "^4.2.0",
     "@azure/functions": "^4.5.0",
+    "@azure/storage-blob": "^12.26.0",
     "@sentry/node": "^10.70.0",
     "@sowflow/shared-types": "workspace:*",
+    "microsoft-cognitiveservices-speech-sdk": "^1.42.0",
     "openai": "^7.5.0",
     "zod": "^3.23.0"
   },

@@ -1,0 +1,208 @@
+import { jsPDF } from "jspdf";
+import type { SowExtraction } from "@sowflow/shared-types";
+
+interface BrandingInfo {
+  companyName?: string;
+  addressLine?: string;
+  vatId?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+}
+
+const MARGIN = 48;
+const LINE_HEIGHT = 14;
+
+function hexToRgb(hex: string | undefined, fallback: [number, number, number]): [number, number, number] {
+  if (!hex) return fallback;
+  const match = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+  if (!match) return fallback;
+  return [parseInt(match[1], 16), parseInt(match[2], 16), parseInt(match[3], 16)];
+}
+
+function imageFormatFromDataUrl(dataUrl: string): string {
+  const match = /^data:image\/(\w+);/.exec(dataUrl);
+  const type = match?.[1]?.toUpperCase() ?? "PNG";
+  return type === "JPG" ? "JPEG" : type;
+}
+
+class PdfWriter {
+  private readonly doc: jsPDF;
+  private readonly pageWidth: number;
+  private readonly pageHeight: number;
+  private readonly contentWidth: number;
+  private y = MARGIN;
+  private readonly primary: [number, number, number];
+
+  constructor(private readonly branding: BrandingInfo) {
+    this.doc = new jsPDF({ unit: "pt", format: "letter" });
+    this.pageWidth = this.doc.internal.pageSize.getWidth();
+    this.pageHeight = this.doc.internal.pageSize.getHeight();
+    this.contentWidth = this.pageWidth - MARGIN * 2;
+    this.primary = hexToRgb(branding.primaryColor, [29, 78, 216]);
+  }
+
+  private ensureSpace(height: number) {
+    if (this.y + height > this.pageHeight - MARGIN) {
+      this.doc.addPage();
+      this.y = MARGIN;
+    }
+  }
+
+  addLogo(dataUrl: string | null) {
+    if (!dataUrl) return;
+    try {
+      const format = imageFormatFromDataUrl(dataUrl);
+      this.doc.addImage(dataUrl, format, MARGIN, this.y, 48, 48);
+    } catch {
+      // Malformed/unsupported image data shouldn't block the rest of the export.
+    }
+  }
+
+  companyHeader() {
+    const textX = MARGIN + 60;
+    this.doc.setFont("helvetica", "bold");
+    this.doc.setFontSize(14);
+    this.doc.setTextColor(...this.primary);
+    this.doc.text(this.branding.companyName || "Statement of Work", textX, this.y + 18);
+    this.doc.setFont("helvetica", "normal");
+    this.doc.setFontSize(9);
+    this.doc.setTextColor(100, 100, 100);
+    if (this.branding.addressLine) {
+      this.doc.text(this.branding.addressLine, textX, this.y + 32);
+    }
+    this.y += 64;
+  }
+
+  title(text: string) {
+    this.ensureSpace(28);
+    this.doc.setFont("helvetica", "bold");
+    this.doc.setFontSize(18);
+    this.doc.setTextColor(20, 20, 20);
+    this.doc.text(text, MARGIN, this.y);
+    this.y += 24;
+  }
+
+  subtitle(text: string) {
+    this.ensureSpace(18);
+    this.doc.setFont("helvetica", "normal");
+    this.doc.setFontSize(11);
+    this.doc.setTextColor(80, 80, 80);
+    this.doc.text(text, MARGIN, this.y);
+    this.y += 20;
+  }
+
+  sectionHeading(text: string) {
+    this.ensureSpace(24);
+    this.y += 8;
+    this.doc.setFont("helvetica", "bold");
+    this.doc.setFontSize(13);
+    this.doc.setTextColor(...this.primary);
+    this.doc.text(text, MARGIN, this.y);
+    this.y += 16;
+  }
+
+  paragraph(text: string) {
+    this.doc.setFont("helvetica", "normal");
+    this.doc.setFontSize(10);
+    this.doc.setTextColor(30, 30, 30);
+    const lines = this.doc.splitTextToSize(text, this.contentWidth) as string[];
+    for (const line of lines) {
+      this.ensureSpace(LINE_HEIGHT);
+      this.doc.text(line, MARGIN, this.y);
+      this.y += LINE_HEIGHT;
+    }
+  }
+
+  bulletList(items: string[], emptyText: string) {
+    if (items.length === 0) {
+      this.paragraph(emptyText);
+      return;
+    }
+    for (const item of items) {
+      this.doc.setFont("helvetica", "normal");
+      this.doc.setFontSize(10);
+      this.doc.setTextColor(30, 30, 30);
+      const lines = this.doc.splitTextToSize(`•  ${item}`, this.contentWidth - 10) as string[];
+      for (const line of lines) {
+        this.ensureSpace(LINE_HEIGHT);
+        this.doc.text(line, MARGIN, this.y);
+        this.y += LINE_HEIGHT;
+      }
+    }
+  }
+
+  footer() {
+    const footerY = this.pageHeight - MARGIN / 2;
+    const pageCount = this.doc.getNumberOfPages();
+    for (let page = 1; page <= pageCount; page++) {
+      this.doc.setPage(page);
+      this.doc.setFont("helvetica", "normal");
+      this.doc.setFontSize(8);
+      this.doc.setTextColor(140, 140, 140);
+      const footerText = [this.branding.companyName, this.branding.vatId ? `VAT: ${this.branding.vatId}` : null]
+        .filter(Boolean)
+        .join("   •   ");
+      if (footerText) {
+        this.doc.text(footerText, MARGIN, footerY);
+      }
+      this.doc.text(`${page} / ${pageCount}`, this.pageWidth - MARGIN, footerY, { align: "right" });
+    }
+  }
+
+  save(fileName: string) {
+    this.doc.save(fileName);
+  }
+}
+
+export function generateSowPdf(sow: SowExtraction, branding: BrandingInfo, logoDataUrl: string | null) {
+  const writer = new PdfWriter(branding);
+  writer.addLogo(logoDataUrl);
+  writer.companyHeader();
+  writer.title(sow.projectTitle);
+  writer.subtitle(`Prepared for ${sow.clientName}`);
+
+  writer.sectionHeading("Executive Summary");
+  writer.paragraph(sow.executiveSummary);
+
+  writer.sectionHeading("Project Objectives");
+  writer.bulletList(sow.projectObjectives, "No objectives listed.");
+
+  writer.sectionHeading("Deliverables & Milestones");
+  writer.bulletList(
+    sow.deliverables.map((d) => {
+      const parts = [d.title, d.description];
+      if (d.milestone) parts.push(`Milestone: ${d.milestone}`);
+      if (d.dueDate) parts.push(`Due: ${d.dueDate}`);
+      return parts.join(" — ");
+    }),
+    "No deliverables listed.",
+  );
+
+  writer.sectionHeading("Out of Scope");
+  writer.bulletList(sow.outOfScope, "Nothing explicitly excluded.");
+
+  writer.sectionHeading("Pricing");
+  const pricingLines = [`Model: ${sow.pricing.model} (${sow.pricing.currency})`];
+  if (sow.pricing.totalAmount) pricingLines.push(`Total: ${sow.pricing.totalAmount} ${sow.pricing.currency}`);
+  if (sow.pricing.hourlyRate) pricingLines.push(`Hourly rate: ${sow.pricing.hourlyRate} ${sow.pricing.currency}`);
+  if (sow.pricing.retainerAmount) {
+    pricingLines.push(
+      `Retainer: ${sow.pricing.retainerAmount} ${sow.pricing.currency} / ${sow.pricing.retainerPeriod ?? "period"}`,
+    );
+  }
+  writer.paragraph(pricingLines.join("\n"));
+  writer.bulletList(
+    sow.pricing.paymentSchedule.map((p) => `${p.description}: ${p.amount} ${sow.pricing.currency} — ${p.trigger}`),
+    "No payment schedule specified.",
+  );
+
+  writer.sectionHeading("Client Responsibilities");
+  writer.bulletList(sow.clientResponsibilities, "None specified.");
+
+  writer.sectionHeading("Asset Requirements");
+  writer.bulletList(sow.assetRequirements, "None specified.");
+
+  writer.footer();
+  const safeName = sow.projectTitle.replace(/[^a-zA-Z0-9-_]+/g, "_").slice(0, 60) || "SOW";
+  writer.save(`${safeName}.pdf`);
+}

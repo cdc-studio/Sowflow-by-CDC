@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { SowExtraction } from "@sowflow/shared-types";
+import type { Branding, SowExtraction } from "@sowflow/shared-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { RiskAlertBox } from "@/components/sow/RiskAlertBox";
 import { EditableList } from "@/components/sow/EditableList";
 import { DeliverablesEditor } from "@/components/sow/DeliverablesEditor";
 import { PricingEditor } from "@/components/sow/PricingEditor";
+import { generateSowPdf } from "@/lib/generateSowPdf";
 
 type LoadState = "loading" | "not-found" | "error" | "ready";
 
@@ -20,6 +21,8 @@ export default function SowEditorPage({ params }: { params: { id: string } }) {
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [branding, setBranding] = useState<Branding | null>(null);
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,11 +49,33 @@ export default function SowEditorPage({ params }: { params: { id: string } }) {
       }
     }
 
+    async function loadBranding() {
+      try {
+        const [brandingRes, logoRes] = await Promise.all([
+          fetch("/api/branding", { cache: "no-store" }),
+          fetch("/api/branding/logo-data-url", { cache: "no-store" }),
+        ]);
+        if (cancelled) return;
+        const brandingData = await brandingRes.json().catch(() => null);
+        const logoData = await logoRes.json().catch(() => null);
+        setBranding(brandingData ?? null);
+        setLogoDataUrl(logoData?.dataUrl ?? null);
+      } catch {
+        // Branding is optional decoration — a failure here shouldn't block the editor.
+      }
+    }
+
     load();
+    loadBranding();
     return () => {
       cancelled = true;
     };
   }, [params.id]);
+
+  function handleDownloadPdf() {
+    if (!sow) return;
+    generateSowPdf(sow, branding ?? {}, logoDataUrl);
+  }
 
   function patch(fields: Partial<SowExtraction>) {
     setSow((current) => (current ? { ...current, ...fields } : current));
@@ -112,6 +137,19 @@ export default function SowEditorPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
+      {(branding?.companyName || logoDataUrl) && (
+        <div className="mb-6 flex items-center gap-3 border-b border-border pb-4">
+          {logoDataUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoDataUrl} alt="" className="h-10 w-10 rounded object-contain" />
+          )}
+          <div>
+            {branding?.companyName && <p className="text-sm font-semibold">{branding.companyName}</p>}
+            {branding?.addressLine && <p className="text-xs text-muted-foreground">{branding.addressLine}</p>}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-1 flex-col gap-2">
           <Input
@@ -129,9 +167,14 @@ export default function SowEditorPage({ params }: { params: { id: string } }) {
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <Button onClick={handleSave} disabled={!isDirty || isSaving}>
-            {isSaving ? "Saving…" : isDirty ? "Save changes" : "Saved"}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleDownloadPdf}>
+              Download PDF SOW
+            </Button>
+            <Button onClick={handleSave} disabled={!isDirty || isSaving}>
+              {isSaving ? "Saving…" : isDirty ? "Save changes" : "Saved"}
+            </Button>
+          </div>
           {saveError && <p className="text-xs text-destructive">{saveError}</p>}
         </div>
       </div>
@@ -229,6 +272,12 @@ export default function SowEditorPage({ params }: { params: { id: string } }) {
           />
         </CardContent>
       </Card>
+
+      {(branding?.companyName || branding?.vatId) && (
+        <div className="mt-8 border-t border-border pt-4 text-center text-xs text-muted-foreground">
+          {[branding?.companyName, branding?.vatId ? `VAT: ${branding.vatId}` : null].filter(Boolean).join("  •  ")}
+        </div>
+      )}
     </div>
   );
 }

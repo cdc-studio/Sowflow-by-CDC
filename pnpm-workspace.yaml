@@ -4,6 +4,7 @@ packages:
 allowBuilds:
   '@clerk/shared': true
   azure-functions-core-tools: true
+  core-js: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - openai@7.5.0

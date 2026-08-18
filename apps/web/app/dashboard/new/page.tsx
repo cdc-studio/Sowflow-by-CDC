@@ -9,11 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { LoadingProgress } from "@/components/sow/LoadingProgress";
+import { LiveRecorder } from "@/components/sow/LiveRecorder";
 import { cn } from "@/lib/utils";
 
 const MIN_TRANSCRIPT_LENGTH = 100;
 
-type InputMode = "paste" | "upload";
+type InputMode = "paste" | "upload" | "record";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -28,25 +29,15 @@ export default function NewProjectPage() {
     setFileName(event.target.files?.[0]?.name ?? null);
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function generateAndSave(rawTranscript: string) {
     setSubmitError(null);
-
-    const trimmed = transcript.trim();
-    if (trimmed.length < MIN_TRANSCRIPT_LENGTH) {
-      setValidationError(
-        `Paste at least ${MIN_TRANSCRIPT_LENGTH} characters of transcript so there's enough context to extract from.`,
-      );
-      return;
-    }
-    setValidationError(null);
     setIsSubmitting(true);
 
     try {
       const response = await fetch("/api/extract-sow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transcript: trimmed }),
+        body: JSON.stringify({ transcript: rawTranscript }),
       });
 
       const payload = await response.json().catch(() => null);
@@ -79,6 +70,24 @@ export default function NewProjectPage() {
     }
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmed = transcript.trim();
+    if (trimmed.length < MIN_TRANSCRIPT_LENGTH) {
+      setValidationError(
+        `Paste at least ${MIN_TRANSCRIPT_LENGTH} characters of transcript so there's enough context to extract from.`,
+      );
+      return;
+    }
+    setValidationError(null);
+    void generateAndSave(trimmed);
+  }
+
+  function handleTranscribed(recordedTranscript: string) {
+    void generateAndSave(recordedTranscript);
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-2xl font-semibold">New SOW</h1>
@@ -103,6 +112,18 @@ export default function NewProjectPage() {
             </button>
             <button
               type="button"
+              onClick={() => setMode("record")}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                mode === "record"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+              )}
+            >
+              Record live meeting
+            </button>
+            <button
+              type="button"
               onClick={() => setMode("upload")}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
@@ -119,6 +140,15 @@ export default function NewProjectPage() {
         <CardContent>
           {isSubmitting ? (
             <LoadingProgress />
+          ) : mode === "record" ? (
+            <div className="flex flex-col gap-4">
+              <LiveRecorder onTranscribed={handleTranscribed} disabled={isSubmitting} />
+              {submitError && (
+                <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {submitError}
+                </p>
+              )}
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {mode === "paste" ? (
@@ -152,10 +182,11 @@ export default function NewProjectPage() {
                     onChange={handleFileChange}
                     className="text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
                   />
-                  <Badge variant="secondary">Coming in Phase 3 — transcription pipeline</Badge>
+                  <Badge variant="secondary">Coming soon — file transcription pipeline</Badge>
                   <p className="max-w-sm text-xs text-muted-foreground">
-                    Audio/video transcription runs through an async queue-based pipeline that
-                    isn&apos;t wired up yet. Paste a transcript for now.
+                    Uploading a pre-recorded file runs through an async queue-based pipeline that
+                    isn&apos;t wired up yet. Use &ldquo;Record live meeting&rdquo; or paste a
+                    transcript for now.
                   </p>
                 </div>
               )}

@@ -54,3 +54,7 @@ export function getSubscriptionsContainer(): Promise<Container> {
 export function getUsageContainer(): Promise<Container> {
   return getContainer("usage", "/day");
 }
+
+export function getBrandingContainer(): Promise<Container> {
+  return getContainer("branding", "/ownerId");
+}
