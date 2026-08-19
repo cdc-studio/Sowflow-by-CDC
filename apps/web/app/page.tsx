@@ -4,6 +4,7 @@ import { AlertTriangle, FileText, Mic, Palette, ShieldCheck, Wallet } from "luci
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { VideoDemoSection } from "@/components/VideoDemoSection";
 import { getAuthUserId } from "@/lib/authUser";
 
 // Without this, Next.js decides at build time whether this page is static
@@ -106,6 +107,8 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      <VideoDemoSection />
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">

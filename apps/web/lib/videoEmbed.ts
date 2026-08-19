@@ -50,3 +50,13 @@ export function toEmbedUrl(rawUrl: string): string | null {
 
   return null;
 }
+
+/**
+ * Extracts a YouTube video ID from an embed URL produced by toEmbedUrl, for
+ * building a static thumbnail (img.youtube.com) instead of loading the
+ * iframe up front. Returns null for non-YouTube embeds.
+ */
+export function getYoutubeThumbnail(embedUrl: string): string | null {
+  const match = embedUrl.match(/^https:\/\/www\.youtube\.com\/embed\/([^/?]+)/);
+  return match ? `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg` : null;
+}
