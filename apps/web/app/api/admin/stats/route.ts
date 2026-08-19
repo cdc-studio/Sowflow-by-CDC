@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { getAdminStats, isAdmin } from "@/lib/adminStats";
+import { getAuthUserId } from "@/lib/authUser";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   if (!userId || !isAdmin(userId)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

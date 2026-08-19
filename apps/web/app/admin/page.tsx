@@ -1,12 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAdminStats, isAdmin } from "@/lib/adminStats";
+import { getAuthUserId } from "@/lib/authUser";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   if (!userId || !isAdmin(userId)) {
     redirect("/dashboard/new");
   }

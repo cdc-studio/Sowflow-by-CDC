@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import Stripe from "stripe";
+import { getAuthUserId } from "@/lib/authUser";
 
 export const runtime = "nodejs";
 
@@ -19,7 +20,7 @@ function getStripeClient(): Stripe {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
