@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: "/dashboard/projects", label: "My SOWs" },
   { href: "/dashboard/settings/billing", label: "Billing" },
   { href: "/dashboard/settings/branding", label: "Branding" },
+  { href: "/help", label: "Help" },
 ];
 
 // Nav hrefs nest (every route lives under /dashboard), so more than one href

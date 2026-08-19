@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, FileText, ListChecks, UploadCloud, Wallet } from "lucide-react";
 import type { SowExtraction } from "@sowflow/shared-types";
@@ -97,10 +98,21 @@ export default function NewProjectPage() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight">New SOW</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Paste, record, or upload a discovery-call transcript and SOWFlow will draft the Statement of Work.
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">New SOW</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Paste, record, or upload a discovery-call transcript and SOWFlow will draft the Statement of
+            Work.
+          </p>
+        </div>
+        <Link
+          href="/help?q=sow"
+          className="shrink-0 whitespace-nowrap text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Watch how it works
+        </Link>
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>

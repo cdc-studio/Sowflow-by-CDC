@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FileText, LayoutGrid, Mic, Palette, Shield, CreditCard } from "lucide-react";
+import { FileText, LayoutGrid, Mic, Palette, Shield, CreditCard, HelpCircle } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -26,6 +26,7 @@ const NAVIGATE_ACTIONS: CommandAction[] = [
   { label: "Record live meeting", href: "/dashboard/new", icon: Mic, keywords: "audio recorder microphone" },
   { label: "Billing", href: "/dashboard/settings/billing", icon: CreditCard, keywords: "subscription plan stripe" },
   { label: "Branding", href: "/dashboard/settings/branding", icon: Palette, keywords: "logo colors white-label" },
+  { label: "Help Center", href: "/help", icon: HelpCircle, keywords: "tutorials videos support docs" },
   { label: "Admin", href: "/admin", icon: Shield, keywords: "stats users" },
 ];
 

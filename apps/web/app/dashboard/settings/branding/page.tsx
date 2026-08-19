@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -125,10 +126,20 @@ export default function BrandingSettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">White-label branding</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Applied to the header and footer of every generated SOW, including PDF exports.
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">White-label branding</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Applied to the header and footer of every generated SOW, including PDF exports.
+          </p>
+        </div>
+        <Link
+          href="/help?q=branding"
+          className="shrink-0 whitespace-nowrap text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Watch tutorial
+        </Link>
+      </div>
 
       <Card className="mt-6">
         <CardHeader>

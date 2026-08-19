@@ -108,8 +108,11 @@ export default async function HomePage() {
       </section>
 
       <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-6xl px-4 text-center text-xs text-muted-foreground sm:px-6">
-          © {new Date().getFullYear()} SOWFlow. All rights reserved.
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
+          <span>© {new Date().getFullYear()} SOWFlow. All rights reserved.</span>
+          <Link href="/help" className="transition-colors hover:text-foreground">
+            Help Center
+          </Link>
         </div>
       </footer>
     </main>

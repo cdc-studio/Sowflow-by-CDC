@@ -58,3 +58,7 @@ export function getUsageContainer(): Promise<Container> {
 export function getBrandingContainer(): Promise<Container> {
   return getContainer("branding", "/ownerId");
 }
+
+export function getTutorialsContainer(): Promise<Container> {
+  return getContainer("tutorials", "/id");
+}
