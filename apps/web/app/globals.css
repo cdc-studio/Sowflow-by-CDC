@@ -26,26 +26,29 @@
     --radius: 0.5rem;
   }
 
+  /* Linear-inspired zinc dark theme -- the app's default look, not an
+     opt-in toggle. html carries class="dark" in layout.tsx. */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 96%;
+    --card: 240 8% 6.5%;
+    --card-foreground: 0 0% 96%;
+    --popover: 240 8% 7.5%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 240 5% 96%;
+    --primary-foreground: 240 6% 10%;
+    --secondary: 240 4% 13%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 4% 13%;
+    --muted-foreground: 240 4% 62%;
+    --accent: 240 5% 16%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 243 75% 65%;
+    --glow: 243 75% 65%;
   }
 }
 
@@ -55,5 +58,30 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.8);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 0 1px hsl(var(--glow) / 0.25), 0 0 24px -8px hsl(var(--glow) / 0.35);
+  }
+
+  .glow-ring-low {
+    box-shadow: 0 0 0 1px hsl(217 91% 60% / 0.35), 0 0 16px -6px hsl(217 91% 60% / 0.45);
+  }
+
+  .glow-ring-medium {
+    box-shadow: 0 0 0 1px hsl(38 92% 50% / 0.4), 0 0 18px -6px hsl(38 92% 50% / 0.55);
+  }
+
+  .glow-ring-high {
+    box-shadow: 0 0 0 1px hsl(0 84% 60% / 0.45), 0 0 20px -6px hsl(0 84% 60% / 0.6);
   }
 }

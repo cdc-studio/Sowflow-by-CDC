@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { isClerkConfigured } from "@/lib/clerkConfig";
+import { CommandPalette } from "@/components/CommandPalette";
+import { CommandPaletteProvider } from "@/components/CommandPaletteProvider";
+import { SearchTriggerButton } from "@/components/SearchTriggerButton";
+import { PageTransition } from "@/components/motion/PageTransition";
 
 // Every page under /dashboard is per-user and auth-gated — never cacheable
 // static content — so it should never attempt static generation.
@@ -16,34 +20,54 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const clerkReady = isClerkConfigured();
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard/new" className="text-lg font-semibold">
-              SOWFlow
-            </Link>
-            <Link href="/dashboard/projects" className="text-sm text-muted-foreground hover:text-foreground">
-              My SOWs
-            </Link>
-          </div>
-          {clerkReady && (
-            <div className="flex items-center gap-3">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground">
-                    Sign in
-                  </button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" />
-              </SignedIn>
+    <CommandPaletteProvider>
+      <div className="min-h-screen bg-background">
+        <header className="glass-panel sticky top-0 z-40 border-b">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+            <div className="flex items-center gap-6">
+              <Link href="/dashboard/new" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+                <span className="glow-border flex h-6 w-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">
+                  S
+                </span>
+                SOWFlow
+              </Link>
+              <nav className="hidden items-center gap-5 text-sm text-muted-foreground sm:flex">
+                <Link href="/dashboard/new" className="transition-colors hover:text-foreground">
+                  New SOW
+                </Link>
+                <Link href="/dashboard/projects" className="transition-colors hover:text-foreground">
+                  My SOWs
+                </Link>
+                <Link href="/dashboard/settings/billing" className="transition-colors hover:text-foreground">
+                  Billing
+                </Link>
+                <Link href="/dashboard/settings/branding" className="transition-colors hover:text-foreground">
+                  Branding
+                </Link>
+              </nav>
             </div>
-          )}
-        </div>
-      </header>
-      {children}
-    </div>
+            <div className="flex items-center gap-3">
+              <SearchTriggerButton />
+              {clerkReady && (
+                <>
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <button className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+                        Sign in
+                      </button>
+                    </SignInButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <UserButton afterSignOutUrl="/" />
+                  </SignedIn>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+        <CommandPalette />
+        <PageTransition>{children}</PageTransition>
+      </div>
+    </CommandPaletteProvider>
   );
 }
