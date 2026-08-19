@@ -1,7 +1,105 @@
+import Link from "next/link";
+import { AlertTriangle, FileText, Mic, Palette, ShieldCheck, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const FEATURES = [
+  {
+    icon: FileText,
+    title: "AI-Extracted SOWs",
+    desc: "Paste a discovery-call transcript and get a structured Statement of Work — objectives, deliverables, milestones — in seconds.",
+  },
+  {
+    icon: AlertTriangle,
+    title: "Scope Creep Detection",
+    desc: "Vague client promises get flagged automatically, with severity ratings, before they turn into disputes.",
+  },
+  {
+    icon: Mic,
+    title: "Record Live Meetings",
+    desc: "Capture the call directly in your browser and let SOWFlow transcribe and draft while you talk.",
+  },
+  {
+    icon: Wallet,
+    title: "Pricing, Extracted",
+    desc: "Fixed fee, hourly, or retainer — pricing structure and payment schedule pulled straight from the conversation.",
+  },
+  {
+    icon: Palette,
+    title: "White-Label Branding",
+    desc: "Your logo, your colors, your letterhead — on every generated document and PDF export.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Built for Agencies",
+    desc: "Team billing, per-user history, and an admin view into usage — ready for how agencies actually work.",
+  },
+];
+
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold">SOWFlow</h1>
+    <main className="min-h-screen bg-background">
+      <header className="border-b border-border">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+            <span className="glow-border flex h-6 w-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">
+              S
+            </span>
+            SOWFlow
+          </div>
+          <div className="flex items-center gap-3">
+            <Button asChild variant="ghost">
+              <Link href="/sign-in">Sign in</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/new">Get Started</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-4xl px-4 py-24 text-center sm:px-6 sm:py-32">
+        <span className="glow-border inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+          AI-powered Statements of Work
+        </span>
+        <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl">
+          Turn discovery calls into
+          <br />
+          signed contracts in minutes.
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+          SOWFlow reads your call transcript and drafts a complete Statement of Work — deliverables,
+          pricing, risks, and all — so your team stops losing an afternoon to admin work after every
+          client call.
+        </p>
+        <div className="mt-10 flex items-center justify-center gap-3">
+          <Button asChild size="lg">
+            <Link href="/dashboard/new">Get Started</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/sign-in">Sign in</Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((feature) => (
+            <div key={feature.title} className="glass-panel rounded-lg p-6">
+              <span className="glow-border flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+                <feature.icon className="h-5 w-5 text-primary" />
+              </span>
+              <h3 className="mt-4 text-sm font-semibold">{feature.title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="border-t border-border py-8">
+        <div className="mx-auto max-w-6xl px-4 text-center text-xs text-muted-foreground sm:px-6">
+          © {new Date().getFullYear()} SOWFlow. All rights reserved.
+        </div>
+      </footer>
     </main>
   );
 }
