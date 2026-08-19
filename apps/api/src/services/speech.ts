@@ -16,6 +16,16 @@ function requireEnv(name: string): string {
  * default. That's why the client converts to PCM WAV before uploading, and
  * why this only takes raw PCM rather than an arbitrary audio file.
  */
+// Azure Speech has no built-in cap on how long continuous recognition can run
+// before firing a terminal event — a stalled connection or a stuck service
+// session leaves the SDK never calling `canceled`/`sessionStopped`, which
+// would hang this promise (and the request) until the Function App's global
+// 9-minute functionTimeout kills it with no useful error. Bound it ourselves
+// to the audio's own duration plus a fixed grace period so a stuck session
+// fails fast with a clear message instead.
+const RECOGNITION_GRACE_MS = 30_000;
+const MIN_RECOGNITION_TIMEOUT_MS = 30_000;
+
 export function transcribePcm(pcmBuffer: Buffer, sampleRate: number): Promise<string> {
   const speechKey = requireEnv("AZURE_SPEECH_KEY");
   const region = requireEnv("AZURE_SPEECH_REGION");
@@ -43,6 +53,9 @@ export function transcribePcm(pcmBuffer: Buffer, sampleRate: number): Promise<st
     audioConfig,
   );
 
+  const audioSeconds = pcmBuffer.length / (sampleRate * 2);
+  const timeoutMs = Math.max(MIN_RECOGNITION_TIMEOUT_MS, audioSeconds * 1000 + RECOGNITION_GRACE_MS);
+
   return new Promise((resolve, reject) => {
     const segments: string[] = [];
     let settled = false;
@@ -50,8 +63,17 @@ export function transcribePcm(pcmBuffer: Buffer, sampleRate: number): Promise<st
     function finish(fn: () => void) {
       if (settled) return;
       settled = true;
+      clearTimeout(timeoutTimer);
+      recognizer.close();
       fn();
     }
+
+    const timeoutTimer = setTimeout(() => {
+      recognizer.stopContinuousRecognitionAsync(
+        () => finish(() => reject(new Error("Speech recognition timed out"))),
+        () => finish(() => reject(new Error("Speech recognition timed out"))),
+      );
+    }, timeoutMs);
 
     recognizer.recognized = (_sender, event) => {
       if (event.result.reason === sdk.ResultReason.RecognizedSpeech && event.result.text) {

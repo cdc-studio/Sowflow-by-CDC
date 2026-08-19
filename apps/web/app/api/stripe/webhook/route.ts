@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  if (!signature || !webhookSecret) {
-    console.error("Stripe webhook received but STRIPE_WEBHOOK_SECRET is not configured");
+  if (!signature || !webhookSecret || !process.env.STRIPE_SECRET_KEY) {
+    console.error("Stripe webhook received but Stripe is not fully configured");
     return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
   }
 

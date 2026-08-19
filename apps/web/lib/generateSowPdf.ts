@@ -85,35 +85,51 @@ class PdfWriter {
 
   companyHeader() {
     const textX = MARGIN + 60;
+    const headerWidth = this.pageWidth - textX - MARGIN;
     this.doc.setFont(PDF_FONT, "bold");
     this.doc.setFontSize(14);
     this.doc.setTextColor(...this.primary);
-    this.doc.text(this.branding.companyName || "SOWFlow", textX, this.y + 18);
+    // Company name is free-text (and may be in Georgian, which runs longer
+    // than Latin for the same content), so it can't be trusted to fit on one
+    // line next to the logo — wrap it like paragraph()/bulletList() do.
+    const nameLines = this.doc.splitTextToSize(this.branding.companyName || "SOWFlow", headerWidth) as string[];
+    let lineY = this.y + 18;
+    for (const line of nameLines) {
+      this.doc.text(line, textX, lineY);
+      lineY += 14;
+    }
     this.doc.setFont(PDF_FONT, "normal");
     this.doc.setFontSize(9);
     this.doc.setTextColor(100, 100, 100);
     if (this.branding.addressLine) {
-      this.doc.text(this.branding.addressLine, textX, this.y + 32);
+      this.doc.text(this.branding.addressLine, textX, lineY);
+      lineY += 14;
     }
-    this.y += 64;
+    this.y = Math.max(this.y + 64, lineY + 8);
   }
 
   title(text: string) {
-    this.ensureSpace(28);
     this.doc.setFont(PDF_FONT, "bold");
     this.doc.setFontSize(18);
     this.doc.setTextColor(20, 20, 20);
-    this.doc.text(text, MARGIN, this.y);
-    this.y += 24;
+    const lines = this.doc.splitTextToSize(text, this.contentWidth) as string[];
+    for (const line of lines) {
+      this.ensureSpace(24);
+      this.doc.text(line, MARGIN, this.y);
+      this.y += 24;
+    }
   }
 
   subtitle(text: string) {
-    this.ensureSpace(18);
     this.doc.setFont(PDF_FONT, "normal");
     this.doc.setFontSize(11);
     this.doc.setTextColor(80, 80, 80);
-    this.doc.text(text, MARGIN, this.y);
-    this.y += 20;
+    const lines = this.doc.splitTextToSize(text, this.contentWidth) as string[];
+    for (const line of lines) {
+      this.ensureSpace(18);
+      this.doc.text(line, MARGIN, this.y);
+      this.y += 18;
+    }
   }
 
   sectionHeading(text: string) {
