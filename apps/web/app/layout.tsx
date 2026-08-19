@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ClerkThemeProvider } from "@/components/ClerkThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,21 +9,18 @@ export const metadata: Metadata = {
   description: "Turn discovery calls into signed contracts in minutes.",
 };
 
-// Syntactically valid (decodes to "placeholder.clerk.accounts.dev$") but not a
-// real Clerk instance — it exists only so `next build` can statically render
-// public pages without NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY configured. Auth is
-// inert until the real key is set; this fallback is never used once it is.
-const FALLBACK_PUBLISHABLE_KEY = "pk_test_cGxhY2Vob2xkZXIuY2xlcmsuYWNjb3VudHMuZGV2JA==";
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || FALLBACK_PUBLISHABLE_KEY}
-      appearance={{ baseTheme: dark }}
-    >
-      <html lang="en" className="dark">
-        <body>{children}</body>
-      </html>
-    </ClerkProvider>
+    // suppressHydrationWarning is the documented next-themes requirement:
+    // its inline script sets the "dark"/"light" class on <html> before React
+    // hydrates, which would otherwise always mismatch the server-rendered
+    // markup and log a (harmless, but noisy) hydration warning.
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider>
+          <ClerkThemeProvider>{children}</ClerkThemeProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

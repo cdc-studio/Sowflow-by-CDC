@@ -5,6 +5,8 @@ import { isClerkConfigured } from "@/lib/clerkConfig";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CommandPaletteProvider } from "@/components/CommandPaletteProvider";
 import { SearchTriggerButton } from "@/components/SearchTriggerButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Logo } from "@/components/Logo";
 import { PageTransition } from "@/components/motion/PageTransition";
 
 // Every page under /dashboard is per-user and auth-gated — never cacheable
@@ -25,11 +27,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <header className="glass-panel sticky top-0 z-40 border-b">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
             <div className="flex items-center gap-6">
-              <Link href="/dashboard/new" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-                <span className="glow-border flex h-6 w-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">
-                  S
-                </span>
-                SOWFlow
+              <Link href="/dashboard/new">
+                <Logo />
               </Link>
               <nav className="hidden items-center gap-5 text-sm text-muted-foreground sm:flex">
                 <Link href="/dashboard/new" className="transition-colors hover:text-foreground">
@@ -48,6 +47,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex items-center gap-3">
               <SearchTriggerButton />
+              <ThemeToggle />
               {clerkReady && (
                 <>
                   <SignedOut>

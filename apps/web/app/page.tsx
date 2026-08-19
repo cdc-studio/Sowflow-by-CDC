@@ -1,6 +1,17 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AlertTriangle, FileText, Mic, Palette, ShieldCheck, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { getAuthUserId } from "@/lib/authUser";
+
+// Without this, Next.js decides at build time whether this page is static
+// or dynamic based on whether auth() actually got called during that build
+// — which depends on Clerk env vars being present in that specific build
+// environment. Forcing dynamic makes the signed-in redirect work reliably
+// regardless of what the build environment happened to have configured.
+export const dynamic = "force-dynamic";
 
 const FEATURES = [
   {
@@ -35,18 +46,19 @@ const FEATURES = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const userId = await getAuthUserId();
+  if (userId) {
+    redirect("/dashboard/new");
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-            <span className="glow-border flex h-6 w-6 items-center justify-center rounded-md bg-primary text-xs text-primary-foreground">
-              S
-            </span>
-            SOWFlow
-          </div>
+          <Logo />
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button asChild variant="ghost">
               <Link href="/sign-in">Sign in</Link>
             </Button>

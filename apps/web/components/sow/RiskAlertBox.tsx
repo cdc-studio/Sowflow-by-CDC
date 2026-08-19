@@ -5,10 +5,25 @@ import type { RiskFlag } from "@sowflow/shared-types";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// text-*-300 pastel tones only read well on a dark surface — paired with a
+// darker *-700 shade for light mode via the dark: variant so contrast holds
+// in both themes instead of assuming the app is always dark.
 const SEVERITY_CONFIG: Record<RiskFlag["severity"], { badge: string; glow: string; dot: string }> = {
-  low: { badge: "bg-blue-500/10 text-blue-300", glow: "glow-ring-low", dot: "bg-blue-400" },
-  medium: { badge: "bg-amber-500/10 text-amber-300", glow: "glow-ring-medium", dot: "bg-amber-400" },
-  high: { badge: "bg-red-500/10 text-red-300", glow: "glow-ring-high", dot: "bg-red-400" },
+  low: {
+    badge: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+    glow: "glow-ring-low",
+    dot: "bg-blue-500 dark:bg-blue-400",
+  },
+  medium: {
+    badge: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    glow: "glow-ring-medium",
+    dot: "bg-amber-500 dark:bg-amber-400",
+  },
+  high: {
+    badge: "bg-red-500/10 text-red-700 dark:text-red-300",
+    glow: "glow-ring-high",
+    dot: "bg-red-500 dark:bg-red-400",
+  },
 };
 
 export function RiskAlertBox({ riskFlags }: { riskFlags: RiskFlag[] }) {

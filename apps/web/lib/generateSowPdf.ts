@@ -49,13 +49,26 @@ class PdfWriter {
   }
 
   addLogo(dataUrl: string | null) {
-    if (!dataUrl) return;
-    try {
-      const format = imageFormatFromDataUrl(dataUrl);
-      this.doc.addImage(dataUrl, format, MARGIN, this.y, 48, 48);
-    } catch {
-      // Malformed/unsupported image data shouldn't block the rest of the export.
+    if (dataUrl) {
+      try {
+        const format = imageFormatFromDataUrl(dataUrl);
+        this.doc.addImage(dataUrl, format, MARGIN, this.y, 48, 48);
+        return;
+      } catch {
+        // Malformed/unsupported image data — fall through to the drawn mark below.
+      }
     }
+    // No agency logo on file: draw the SOWFlow mark (vector, matching
+    // components/Logo.tsx's badge-with-flow-lines shape) instead of leaving
+    // the header blank or defaulting to some other brand's asset.
+    const [r, g, b] = this.primary;
+    this.doc.setFillColor(r, g, b);
+    this.doc.roundedRect(MARGIN, this.y, 40, 40, 11, 11, "F");
+    this.doc.setDrawColor(255, 255, 255);
+    this.doc.setLineWidth(1.6);
+    this.doc.line(MARGIN + 8, this.y + 24, MARGIN + 32, this.y + 24);
+    this.doc.setLineWidth(1.6);
+    this.doc.line(MARGIN + 8, this.y + 16, MARGIN + 32, this.y + 16);
   }
 
   companyHeader() {
@@ -63,7 +76,7 @@ class PdfWriter {
     this.doc.setFont("helvetica", "bold");
     this.doc.setFontSize(14);
     this.doc.setTextColor(...this.primary);
-    this.doc.text(this.branding.companyName || "Statement of Work", textX, this.y + 18);
+    this.doc.text(this.branding.companyName || "SOWFlow", textX, this.y + 18);
     this.doc.setFont("helvetica", "normal");
     this.doc.setFontSize(9);
     this.doc.setTextColor(100, 100, 100);
