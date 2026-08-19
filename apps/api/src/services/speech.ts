@@ -21,6 +21,12 @@ export function transcribePcm(pcmBuffer: Buffer, sampleRate: number): Promise<st
   const region = requireEnv("AZURE_SPEECH_REGION");
 
   const speechConfig = sdk.SpeechConfig.fromSubscription(speechKey, region);
+  // Auto-detect between English and Georgian rather than assuming en-US —
+  // callers may record in either language and the SDK can't tell in advance.
+  const autoDetectSourceLanguageConfig = sdk.AutoDetectSourceLanguageConfig.fromLanguages([
+    "en-US",
+    "ka-GE",
+  ]);
   const format = sdk.AudioStreamFormat.getWaveFormatPCM(sampleRate, 16, 1);
   const pushStream = sdk.AudioInputStream.createPushStream(format);
   const arrayBuffer = pcmBuffer.buffer.slice(
@@ -31,7 +37,11 @@ export function transcribePcm(pcmBuffer: Buffer, sampleRate: number): Promise<st
   pushStream.close();
 
   const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
-  const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
+  const recognizer = sdk.SpeechRecognizer.FromConfig(
+    speechConfig,
+    autoDetectSourceLanguageConfig,
+    audioConfig,
+  );
 
   return new Promise((resolve, reject) => {
     const segments: string[] = [];

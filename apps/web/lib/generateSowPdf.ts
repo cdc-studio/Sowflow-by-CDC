@@ -1,5 +1,8 @@
 import { jsPDF } from "jspdf";
 import type { SowExtraction } from "@sowflow/shared-types";
+import { NOTO_SANS_GEORGIAN_BOLD_BASE64, NOTO_SANS_GEORGIAN_REGULAR_BASE64 } from "@/lib/fonts/notoSansGeorgian";
+
+const PDF_FONT = "NotoSansGeorgian";
 
 interface BrandingInfo {
   companyName?: string;
@@ -39,6 +42,15 @@ class PdfWriter {
     this.pageHeight = this.doc.internal.pageSize.getHeight();
     this.contentWidth = this.pageWidth - MARGIN * 2;
     this.primary = hexToRgb(branding.primaryColor, [29, 78, 216]);
+
+    // Helvetica (jsPDF's default) has no Georgian glyphs, so any ka-GE text
+    // renders as blank boxes. Embed Noto Sans Georgian for every weight we
+    // use — it covers both Latin and Georgian, so all text goes through one
+    // font instead of switching per-language.
+    this.doc.addFileToVFS("NotoSansGeorgian-Regular.ttf", NOTO_SANS_GEORGIAN_REGULAR_BASE64);
+    this.doc.addFont("NotoSansGeorgian-Regular.ttf", PDF_FONT, "normal");
+    this.doc.addFileToVFS("NotoSansGeorgian-Bold.ttf", NOTO_SANS_GEORGIAN_BOLD_BASE64);
+    this.doc.addFont("NotoSansGeorgian-Bold.ttf", PDF_FONT, "bold");
   }
 
   private ensureSpace(height: number) {
@@ -73,11 +85,11 @@ class PdfWriter {
 
   companyHeader() {
     const textX = MARGIN + 60;
-    this.doc.setFont("helvetica", "bold");
+    this.doc.setFont(PDF_FONT, "bold");
     this.doc.setFontSize(14);
     this.doc.setTextColor(...this.primary);
     this.doc.text(this.branding.companyName || "SOWFlow", textX, this.y + 18);
-    this.doc.setFont("helvetica", "normal");
+    this.doc.setFont(PDF_FONT, "normal");
     this.doc.setFontSize(9);
     this.doc.setTextColor(100, 100, 100);
     if (this.branding.addressLine) {
@@ -88,7 +100,7 @@ class PdfWriter {
 
   title(text: string) {
     this.ensureSpace(28);
-    this.doc.setFont("helvetica", "bold");
+    this.doc.setFont(PDF_FONT, "bold");
     this.doc.setFontSize(18);
     this.doc.setTextColor(20, 20, 20);
     this.doc.text(text, MARGIN, this.y);
@@ -97,7 +109,7 @@ class PdfWriter {
 
   subtitle(text: string) {
     this.ensureSpace(18);
-    this.doc.setFont("helvetica", "normal");
+    this.doc.setFont(PDF_FONT, "normal");
     this.doc.setFontSize(11);
     this.doc.setTextColor(80, 80, 80);
     this.doc.text(text, MARGIN, this.y);
@@ -107,7 +119,7 @@ class PdfWriter {
   sectionHeading(text: string) {
     this.ensureSpace(24);
     this.y += 8;
-    this.doc.setFont("helvetica", "bold");
+    this.doc.setFont(PDF_FONT, "bold");
     this.doc.setFontSize(13);
     this.doc.setTextColor(...this.primary);
     this.doc.text(text, MARGIN, this.y);
@@ -115,7 +127,7 @@ class PdfWriter {
   }
 
   paragraph(text: string) {
-    this.doc.setFont("helvetica", "normal");
+    this.doc.setFont(PDF_FONT, "normal");
     this.doc.setFontSize(10);
     this.doc.setTextColor(30, 30, 30);
     const lines = this.doc.splitTextToSize(text, this.contentWidth) as string[];
@@ -132,7 +144,7 @@ class PdfWriter {
       return;
     }
     for (const item of items) {
-      this.doc.setFont("helvetica", "normal");
+      this.doc.setFont(PDF_FONT, "normal");
       this.doc.setFontSize(10);
       this.doc.setTextColor(30, 30, 30);
       const lines = this.doc.splitTextToSize(`•  ${item}`, this.contentWidth - 10) as string[];
@@ -149,7 +161,7 @@ class PdfWriter {
     const pageCount = this.doc.getNumberOfPages();
     for (let page = 1; page <= pageCount; page++) {
       this.doc.setPage(page);
-      this.doc.setFont("helvetica", "normal");
+      this.doc.setFont(PDF_FONT, "normal");
       this.doc.setFontSize(8);
       this.doc.setTextColor(140, 140, 140);
       const footerText = [this.branding.companyName, this.branding.vatId ? `VAT: ${this.branding.vatId}` : null]

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { getAdminStats, isAdmin } from "@/lib/adminStats";
+import { getAdminStats } from "@/lib/adminStats";
+import { checkAdminAccess } from "@/lib/adminAuth";
 import { getAuthUserId } from "@/lib/authUser";
 
 export const runtime = "nodejs";
 
 export async function GET() {
   const userId = await getAuthUserId();
-  if (!userId || !isAdmin(userId)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const access = await checkAdminAccess(userId);
+  if (!access.granted) {
+    return NextResponse.json({ error: "Forbidden", reason: access.reason }, { status: 403 });
   }
 
   const stats = await getAdminStats();

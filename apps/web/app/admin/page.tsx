@@ -1,14 +1,16 @@
-import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAdminStats, isAdmin } from "@/lib/adminStats";
+import { getAdminStats } from "@/lib/adminStats";
+import { checkAdminAccess } from "@/lib/adminAuth";
 import { getAuthUserId } from "@/lib/authUser";
+import { AdminAccessDenied } from "@/components/AdminAccessDenied";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const userId = await getAuthUserId();
-  if (!userId || !isAdmin(userId)) {
-    redirect("/dashboard/new");
+  const access = await checkAdminAccess(userId);
+  if (!access.granted) {
+    return <AdminAccessDenied result={access} />;
   }
 
   const stats = await getAdminStats();
@@ -26,6 +28,12 @@ export default async function AdminDashboardPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-semibold">Admin</h1>
+      {access.via === "dev-bypass" && (
+        <p className="mt-2 rounded-md bg-amber-500/10 px-3 py-2 text-sm text-amber-600 dark:text-amber-400">
+          You&apos;re in via the dev admin bypass (ALLOW_DEV_ADMIN). Set ADMIN_USER_IDS or
+          ADMIN_EMAILS to use real access control.
+        </p>
+      )}
       {!stats && (
         <p className="mt-2 text-sm text-muted-foreground">
           Stats are unavailable right now — check that the Azure Functions API is reachable.

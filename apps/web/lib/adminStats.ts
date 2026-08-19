@@ -1,13 +1,5 @@
 import { clerkClient } from "@clerk/nextjs/server";
 
-export function isAdmin(userId: string): boolean {
-  const adminIds = (process.env.ADMIN_USER_IDS ?? "")
-    .split(",")
-    .map((id) => id.trim())
-    .filter(Boolean);
-  return adminIds.includes(userId);
-}
-
 function functionsUrl(path: string): URL {
   const baseUrl = process.env.AZURE_FUNCTIONS_API_URL;
   if (!baseUrl) {

@@ -1,12 +1,11 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { isClerkConfigured } from "@/lib/clerkConfig";
 import { CommandPalette } from "@/components/CommandPalette";
 import { CommandPaletteProvider } from "@/components/CommandPaletteProvider";
 import { SearchTriggerButton } from "@/components/SearchTriggerButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Logo } from "@/components/Logo";
+import { DashboardNav } from "@/components/DashboardNav";
 import { PageTransition } from "@/components/motion/PageTransition";
 
 // Every page under /dashboard is per-user and auth-gated — never cacheable
@@ -26,25 +25,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <div className="min-h-screen bg-background">
         <header className="glass-panel sticky top-0 z-40 border-b">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-            <div className="flex items-center gap-6">
-              <Link href="/dashboard/new">
-                <Logo />
-              </Link>
-              <nav className="hidden items-center gap-5 text-sm text-muted-foreground sm:flex">
-                <Link href="/dashboard/new" className="transition-colors hover:text-foreground">
-                  New SOW
-                </Link>
-                <Link href="/dashboard/projects" className="transition-colors hover:text-foreground">
-                  My SOWs
-                </Link>
-                <Link href="/dashboard/settings/billing" className="transition-colors hover:text-foreground">
-                  Billing
-                </Link>
-                <Link href="/dashboard/settings/branding" className="transition-colors hover:text-foreground">
-                  Branding
-                </Link>
-              </nav>
-            </div>
+            <DashboardNav />
             <div className="flex items-center gap-3">
               <SearchTriggerButton />
               <ThemeToggle />
